@@ -1,27 +1,103 @@
 <html>
-    <head>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
-        <link rel="preconnect" href="https://fonts.font.im">
-        <link href="https://fonts.font.im/css2?family=Fira+Code:wght@600&display=swap" rel="stylesheet">
-        <style>
-            .time {
-                font-size: 16vw;
-                font-family: 'Fira Code', sans-serif;
+
+<head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2285%22>🕒</text></svg>">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+        integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.font.im">
+    <link href="https://fonts.font.im/css2?family=Fira+Code:wght@600&display=swap" rel="stylesheet">
+    <style>
+        #container {
+            background: fixed lightblue;
+            color: #00264d;
+            font-family: 'Fira Code', sans-serif;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .container {
+            justify-content: center;
+            display: flex;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .time {
+            justify-content: center;
+            font-size: 10vw;
+            line-height: 0.9em;
+        }
+
+        .title {
+            justify-content: left;
+            font-size: 2.5em;
+        }
+
+        .date {
+            width: 100%;
+            justify-content: right;
+            text-align: left;
+            font-size: 2.5em;
+        }
+    </style>
+    <script>
+        wd = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+
+        function get_week_of_year(val) {
+            const year = val.getFullYear() //获取年
+            const month = val.getMonth() + 1 //获取月
+            const day = val.getDate() //获取天
+            const isLeapYear = (year % 400 === 0) || (year % 4 === 0 && year % 100 !== 0) //判断是否为闰年
+            const second = isLeapYear ? 29 : 28
+            const monthList = [31, second, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31].splice(0, month - 1) //获取月份数组
+            let currentDays; //当前日期天数
+            let currentWeek; //当前周数
+            //计算天数
+            currentDays = month === 1 ? day : (monthList.reduce((t, v) => {
+                return t + v
+            }, 0)) + day
+            //计算是第几周
+            currentWeek = currentDays % 7 === 0 ? currentDays / 7 : Math.ceil(currentDays / 7)
+            return currentWeek
+        }
+
+        function time_refresh() {
+            now = new Date();
+            document.getElementById('date-text').innerHTML = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日${wd[now.getDay()]}，第${get_week_of_year(now)}周`;
+            document.getElementById("time-text").innerHTML = now.toLocaleTimeString('en-US', { hour12: false });
+            document.title = `当前时间 ${now.toLocaleTimeString('en-US', { hour12: false })}`
+        };
+
+        function fullscreen() {
+            if (document.fullscreenElement == null) {
+                document.getElementById('container').requestFullscreen().then(() => { }).catch((err) => {
+                    alert(`无法全屏：${err.message} (${err.name})`);
+                });
+            } else {
+                document.exitFullscreen();
             }
-        </style>
-        <script>
-            function r() {
-                now = new Date();
-                document.getElementById("time").innerHTML = now.toLocaleTimeString('en-US', { hour12: false });
-            };
-            setInterval(r, 500);
-        </script>
-    </head>
-    <body>
-        <div class="container h-100">
-            <div class="row h-100 align-items-center justify-content-center">
-                <p class="time" id="time"></p>
+        };
+
+        window.onload = time_refresh;
+        setInterval(time_refresh, 500);
+    </script>
+</head>
+
+<body>
+    <div class="w-100 h-100" id="container">
+        <div class="container" ondblclick="fullscreen()">
+            <div class="row title">
+                <p>当前时间：</p>
+            </div>
+            <div class="row time">
+                <p id="time-text"></p>
+            </div>
+            <div class="row date">
+                <p id="date-text"></p>
             </div>
         </div>
-    </body>
+    </div>
+</body>
+
 </html>
